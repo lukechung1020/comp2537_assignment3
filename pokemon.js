@@ -1,6 +1,17 @@
 const PAGE_SIZE = 10;
 let currentPage = 1;
 let pokemon = [];
+let numPokemon = 0;
+let totalPokemon = 0;
+
+// Updates the number of Pokemon shown and the total number of pokemon
+function updateDisplay() {
+  var current = numPokemon;
+  var total = totalPokemon;
+
+  var h1Display = document.getElementById("display");
+  h1Display.textContent = "Showing " + current + " of " + total + " Pokemon";
+}
 
 const updatePaginationDiv = (currentPage, numPages) => {
   $("#pagination").empty();
@@ -19,6 +30,9 @@ const paginate = async (currentPage, PAGE_SIZE, pokemon) => {
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE
   );
+
+  numPokemon = selected_pokemon.length;
+  updateDisplay();
 
   $("#pokeCards").empty();
   selected_pokemon.forEach(async (pokemon) => {
@@ -43,6 +57,9 @@ const setup = async () => {
     "https://pokeapi.co/api/v2/pokemon?offset=0&limit=810"
   );
   pokemon = response.data.results;
+
+  totalPokemon = pokemon.length;
+  updateDisplay();
 
   paginate(currentPage, PAGE_SIZE, pokemon);
   const numPages = Math.ceil(pokemon.length / PAGE_SIZE);
