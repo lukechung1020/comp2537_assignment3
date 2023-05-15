@@ -4,6 +4,7 @@ let pokemon = [];
 let numPokemon = 0;
 let totalPokemon = 0;
 let numPageBtn = 5;
+let numPages = 0;
 
 // Updates the number of Pokemon shown and the total number of pokemon
 function updateDisplay() {
@@ -17,18 +18,39 @@ function updateDisplay() {
 const updatePaginationDiv = (currentPage, numPages) => {
   $("#pagination").empty();
 
+  var firstExists = false;
+  var previousExists = false;
+  var nextExists = false;
+  var lastExists = false;
+
   const startPage = Math.max(1, currentPage - Math.floor(numPageBtn / 2));
   const endPage = Math.min(numPages, currentPage + Math.floor(numPageBtn / 2));
   for (let i = startPage; i <= endPage; i++) {
+    if (currentPage !== 1 && !previousExists) {
+      $("#pagination").append(`
+        <button class="btn btn-primary page ml1-1 numberedButtons" value="1">First</button>
+        <button class="btn btn-primary page ml1-1 numberedButtons" value="${currentPage - 1}">Prev</button>
+      `);
+      previousExists = true;
+    }
+
     let active = "";
     if (i === currentPage) {
       active = "active";
     }
     $("#pagination").append(`
-    <button class="btn btn-primary page ml-1 numberedButtons ${active}" value="${i}">${i}</button>
+      <button class="btn btn-primary page ml-1 numberedButtons ${active}" value="${i}">${i}</button>
     `);
   }
+  if (currentPage !== numPages && !nextExists) {
+    $("#pagination").append(`
+      <button class="btn btn-primary page ml1-1 numberedButtons" value="${currentPage + 1}">Next</button>
+      <button class="btn btn-primary page ml1-1 numberedButtons" value="${numPages}">Last</button>
+    `);
+    nextExists = true;
+  }
 };
+
 
 const paginate = async (currentPage, PAGE_SIZE, pokemon) => {
   selected_pokemon = pokemon.slice(
@@ -67,7 +89,7 @@ const setup = async () => {
   updateDisplay();
 
   paginate(currentPage, PAGE_SIZE, pokemon);
-  const numPages = Math.ceil(pokemon.length / PAGE_SIZE);
+  numPages = Math.ceil(pokemon.length / PAGE_SIZE);
   updatePaginationDiv(currentPage, numPages);
 
   // pop up modal when clicking on a pokemon card
