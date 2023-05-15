@@ -3,6 +3,7 @@ let currentPage = 1;
 let pokemon = [];
 let numPokemon = 0;
 let totalPokemon = 0;
+let numPageBtn = 5;
 
 // Updates the number of Pokemon shown and the total number of pokemon
 function updateDisplay() {
@@ -16,11 +17,15 @@ function updateDisplay() {
 const updatePaginationDiv = (currentPage, numPages) => {
   $("#pagination").empty();
 
-  const startPage = 1;
-  const endPage = numPages;
+  const startPage = Math.max(1, currentPage - Math.floor(numPageBtn / 2));
+  const endPage = Math.min(numPages, currentPage + Math.floor(numPageBtn / 2));
   for (let i = startPage; i <= endPage; i++) {
+    let active = "";
+    if (i === currentPage) {
+      active = "active";
+    }
     $("#pagination").append(`
-    <button class="btn btn-primary page ml-1 numberedButtons" value="${i}">${i}</button>
+    <button class="btn btn-primary page ml-1 numberedButtons ${active}" value="${i}">${i}</button>
     `);
   }
 };
