@@ -1,4 +1,39 @@
+const PAGE_SIZE = 10;
+let currentPage = 1;
 let pokemon = [];
+
+const updatePaginationDiv = (currentPage, numPages) => {
+  $("#pagination").empty();
+
+  const startPage = 1;
+  const endPage = numPages;
+  for (let i = startPage; i <= endPage; i++) {
+    $("#pagination").append(`
+    <button class="btn btn-primary page ml-1 numberedButtons" value="${i}">${i}</button>
+    `);
+  }
+};
+
+const paginate = async (currentPage, PAGE_SIZE, pokemon) => {
+  selected_pokemon = pokemon.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
+
+  $("#pokeCards").empty();
+  selected_pokemon.forEach(async (pokemon) => {
+    const res = await axios.get(pokemon.url);
+    $("#pokeCards").append(`
+      <div class="pokeCard card" pokeName=${res.data.name}   >
+        <h3>${res.data.name.toUpperCase()}</h3> 
+        <img src="${res.data.sprites.front_default}" alt="${res.data.name}"/>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pokeModal">
+          More
+        </button>
+        </div>  
+        `);
+  });
+};
 
 const setup = async () => {
   // test out poke api using axios here
@@ -8,18 +43,10 @@ const setup = async () => {
     "https://pokeapi.co/api/v2/pokemon?offset=0&limit=810"
   );
   pokemon = response.data.results;
-  pokemon.forEach(async (pokemon) => {
-    const res = await axios.get(pokemon.url);
-    $("#pokeCards").append(`
-      <div class="pokeCard card" pokeName=${res.data.name}   >
-        <h3>${res.data.name.toUpperCase()}</h3> 
-        <img src="${res.data.sprites.front_default}" alt="${res.data.name}"/>
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pokeModal">
-          More
-        </button>
-      </div>  
-    `);
-  });
+
+  paginate(currentPage, PAGE_SIZE, pokemon);
+  const numPages = Math.ceil(pokemon.length / PAGE_SIZE);
+  updatePaginationDiv(currentPage, numPages);
 
   // pop up modal when clicking on a pokemon card
   // add event listener to each pokemon card
