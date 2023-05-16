@@ -19,13 +19,9 @@ async function updateTypes(selectedValue, dropdownID) {
 
     if (dropdown.id !== dropdownID) {
       var options = dropdown.options;
-      for (let j = 0; j < options.length; j++) {
-        if (options[j].value !== "none") {
-          if (options[j].value === selectedValue) {
-            options[j].disabled = true;
-          } else {
-            options[j].disabled = false;
-          }
+      for (let j = 1; j < options.length; j++) {
+        if (options[j].value === selectedValue) {
+          options[j].disabled = true;
         } else {
           options[j].disabled = false;
         }
@@ -49,7 +45,9 @@ async function updateTypes(selectedValue, dropdownID) {
     response2 = await axios.get(`https://pokeapi.co/api/v2/type/${type2}`);
     let arr1 = response1.data.pokemon.map((item) => item.pokemon);
     let arr2 = response2.data.pokemon.map((item) => item.pokemon);
-    pokemon = arr1.filter((pokemon1) => arr2.some((pokemon2) => pokemon1.name === pokemon2.name));
+    pokemon = arr1.filter((pokemon1) =>
+      arr2.some((pokemon2) => pokemon1.name === pokemon2.name)
+    );
   }
 
   totalPokemon = pokemon.length;
@@ -83,7 +81,9 @@ const updatePaginationDiv = (currentPage, numPages) => {
     if (currentPage !== 1 && !previousExists) {
       $("#pagination").append(`
         <button class="btn btn-primary page ml1-1 numberedButtons" value="1">First</button>
-        <button class="btn btn-primary page ml1-1 numberedButtons" value="${currentPage - 1}">Prev</button>
+        <button class="btn btn-primary page ml1-1 numberedButtons" value="${
+          currentPage - 1
+        }">Prev</button>
       `);
       previousExists = true;
     }
@@ -98,13 +98,14 @@ const updatePaginationDiv = (currentPage, numPages) => {
   }
   if (currentPage !== numPages && !nextExists) {
     $("#pagination").append(`
-      <button class="btn btn-primary page ml1-1 numberedButtons" value="${currentPage + 1}">Next</button>
+      <button class="btn btn-primary page ml1-1 numberedButtons" value="${
+        currentPage + 1
+      }">Next</button>
       <button class="btn btn-primary page ml1-1 numberedButtons" value="${numPages}">Last</button>
     `);
     nextExists = true;
   }
 };
-
 
 const paginate = async (currentPage, PAGE_SIZE, pokemon) => {
   selected_pokemon = pokemon.slice(
