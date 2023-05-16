@@ -1,6 +1,7 @@
 const PAGE_SIZE = 10;
 let currentPage = 1;
 let pokemon = [];
+let filteredPokemon = [];
 let pokemonTypes = [];
 let numPokemon = 0;
 let totalPokemon = 0;
@@ -29,31 +30,44 @@ async function updateTypes(selectedValue, dropdownID) {
     }
   }
 
-  let response1 = [];
-  let response2 = [];
+  let response = await axios.get(`https://pokeapi.co/api/v2/pokemon?offset=0&limit=810`);
+  let pokemonList = response.data.results;
 
   if (type1 === "" && type2 === "") {
-    location.reload();
+    filteredPokemon = pokemonList;
   } else if (type1 === "" && type2 !== "") {
-    response2 = await axios.get(`https://pokeapi.co/api/v2/type/${type2}`);
-    pokemon = response2.data.pokemon.map((item) => item.pokemon);
+    let response2 = await axios.get(`https://pokeapi.co/api/v2/type/${type2}`);
+    let pokemonArray2 = response2.data.pokemon.map((item) => item.pokemon);
+
+    filteredPokemon = pokemonList.filter((pokemon) =>
+      pokemonArray2.some((p) => p.name === pokemon.name)
+    );
   } else if (type1 !== "" && type2 === "") {
-    response1 = await axios.get(`https://pokeapi.co/api/v2/type/${type1}`);
-    pokemon = response1.data.pokemon.map((item) => item.pokemon);
+    let response1 = await axios.get(`https://pokeapi.co/api/v2/type/${type1}`);
+    let pokemonArray1 = response1.data.pokemon.map((item) => item.pokemon);
+
+    filteredPokemon = pokemonList.filter((pokemon) =>
+      pokemonArray1.some((p) => p.name === pokemon.name)
+    );
   } else {
-    response1 = await axios.get(`https://pokeapi.co/api/v2/type/${type1}`);
-    response2 = await axios.get(`https://pokeapi.co/api/v2/type/${type2}`);
-    let arr1 = response1.data.pokemon.map((item) => item.pokemon);
-    let arr2 = response2.data.pokemon.map((item) => item.pokemon);
-    pokemon = arr1.filter((pokemon1) =>
-      arr2.some((pokemon2) => pokemon1.name === pokemon2.name)
+    let response1 = await axios.get(`https://pokeapi.co/api/v2/type/${type1}`);
+    let response2 = await axios.get(`https://pokeapi.co/api/v2/type/${type2}`);
+
+    let pokemonArray1 = response1.data.pokemon.map((item) => item.pokemon);
+    let pokemonArray2 = response2.data.pokemon.map((item) => item.pokemon);
+
+    filteredPokemon = pokemonList.filter((pokemon) =>
+      pokemonArray1.some((p) => p.name === pokemon.name) &&
+      pokemonArray2.some((p) => p.name === pokemon.name)
     );
   }
 
-  totalPokemon = pokemon.length;
+  console.log(filteredPokemon);
+
+  totalPokemon = filteredPokemon.length;
   updateDisplay();
 
-  paginate(currentPage, PAGE_SIZE, pokemon);
+  paginate(currentPage, PAGE_SIZE, filteredPokemon);
   numPages = Math.ceil(totalPokemon / PAGE_SIZE);
   updatePaginationDiv(currentPage, numPages);
 }
@@ -70,10 +84,8 @@ function updateDisplay() {
 const updatePaginationDiv = (currentPage, numPages) => {
   $("#pagination").empty();
 
-  var firstExists = false;
   var previousExists = false;
   var nextExists = false;
-  var lastExists = false;
 
   const startPage = Math.max(1, currentPage - Math.floor(numPageBtn / 2));
   const endPage = Math.min(numPages, currentPage + Math.floor(numPageBtn / 2));
@@ -107,8 +119,8 @@ const updatePaginationDiv = (currentPage, numPages) => {
   }
 };
 
-const paginate = async (currentPage, PAGE_SIZE, pokemon) => {
-  selected_pokemon = pokemon.slice(
+const paginate = async (currentPage, PAGE_SIZE, filteredPokemon) => {
+  selected_pokemon = filteredPokemon.slice(
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE
   );
@@ -139,9 +151,8 @@ const setup = async () => {
     "https://pokeapi.co/api/v2/pokemon?offset=0&limit=810"
   );
 
-  console.log(response);
-
   pokemon = response.data.results;
+  filteredPokemon = pokemon;
 
   // Get a list of all types
   const getTypes = await axios
@@ -183,10 +194,10 @@ const setup = async () => {
     selectType2.add(option2);
   }
 
-  totalPokemon = pokemon.length;
+  totalPokemon = filteredPokemon.length;
   updateDisplay();
 
-  paginate(currentPage, PAGE_SIZE, pokemon);
+  paginate(currentPage, PAGE_SIZE, filteredPokemon);
   numPages = Math.ceil(totalPokemon / PAGE_SIZE);
   updatePaginationDiv(currentPage, numPages);
 
@@ -194,11 +205,9 @@ const setup = async () => {
   // add event listener to each pokemon card
   $("body").on("click", ".pokeCard", async function (e) {
     const pokemonName = $(this).attr("pokeName");
-    // console.log("pokemonName: ", pokemonName);
     const res = await axios.get(
       `https://pokeapi.co/api/v2/pokemon/${pokemonName}`
     );
-    // console.log("res.data: ", res.data);
     const types = res.data.types.map((type) => type.type.name);
     $(".modal-body").html(`
         <div style="width:200px">
@@ -245,7 +254,7 @@ const setup = async () => {
   // add event listener to pagination buttons
   $("body").on("click", ".numberedButtons", async function (e) {
     currentPage = Number(e.target.value);
-    paginate(currentPage, PAGE_SIZE, pokemon);
+    paginate(currentPage, PAGE_SIZE, filteredPokemon);
 
     //update pagination buttons
     updatePaginationDiv(currentPage, numPages);
