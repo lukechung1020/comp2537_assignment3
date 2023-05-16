@@ -66,6 +66,7 @@ async function updateTypes(selectedValue, dropdownID) {
 
   totalPokemon = filteredPokemon.length;
   updateDisplay();
+  currentPage = 1;
 
   paginate(currentPage, PAGE_SIZE, filteredPokemon);
   numPages = Math.ceil(totalPokemon / PAGE_SIZE);
