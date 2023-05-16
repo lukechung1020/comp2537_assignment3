@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>Comp2537Assignment3</title>
 
   <!-- import axios -->
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -32,8 +32,16 @@
 </head>
 
 <body>
+  <div id="types">
+    <label for="type1"><b>Type 1:</b></label>
+    <select class="form-select" id="type1" onchange="updateTypes(this.value, type2)"></select>
+    <br>
+    <label for="type2"><b>Type 2:</b></label>
+    <select class="form-select" id="type2" onchange="updateTypes(this.value, type1)"></select>
+  </div>
+
   <div>
-    <h1 id="display"></h1>
+    <h2 id="display"></h2>
   </div>
 
   <div id="pokeCards"></div>
